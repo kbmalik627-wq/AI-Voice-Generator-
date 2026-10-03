@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Background Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0a18"/>
+      <stop offset="50%" stop-color="#14112e"/>
+      <stop offset="100%" stop-color="#070712"/>
+    </linearGradient>
+
+    <!-- KMS Main Text Gradient -->
+    <linearGradient id="kmsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff88"/>
+      <stop offset="35%" stop-color="#f8fafc"/>
+      <stop offset="70%" stop-color="#a29bfe"/>
+      <stop offset="100%" stop-color="#6c5ce7"/>
+    </linearGradient>
+
+    <!-- Ring Gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00ff88"/>
+      <stop offset="50%" stop-color="#6c5ce7"/>
+      <stop offset="100%" stop-color="#00ff88"/>
+    </linearGradient>
+
+    <!-- Equalizer Bar Gradient -->
+    <linearGradient id="barGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#6c5ce7"/>
+      <stop offset="50%" stop-color="#a29bfe"/>
+      <stop offset="100%" stop-color="#00ff88"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Solid rounded background for Android / iOS icon -->
+  <rect width="512" height="512" rx="110" fill="url(#bgGrad)"/>
+
+  <!-- Outer Neon Ring (Within 80% Safe Zone for Maskable) -->
+  <circle cx="256" cy="256" r="198" fill="none" stroke="url(#ringGrad)" stroke-width="4.5" opacity="0.65" filter="url(#glow)"/>
+  <circle cx="256" cy="256" r="190" fill="none" stroke="#6c5ce7" stroke-width="1.5" stroke-dasharray="8 6" opacity="0.45"/>
+
+  <!-- Top Studio Star Indicator -->
+  <circle cx="256" cy="94" r="6" fill="#00ff88" filter="url(#glow)"/>
+  <text x="256" y="122" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="14" font-weight="800" fill="#a29bfe" letter-spacing="4" text-anchor="middle">OFFICIAL STUDIO</text>
+
+  <!-- Big Stylized "KMS" Monogram -->
+  <!-- Shadow layer for 3D depth -->
+  <text x="259" y="278" font-family="'Plus Jakarta Sans', Impact, system-ui, sans-serif" font-size="152" font-weight="900" fill="#030308" text-anchor="middle" letter-spacing="6">KMS</text>
+  <text x="256" y="274" font-family="'Plus Jakarta Sans', Impact, system-ui, sans-serif" font-size="152" font-weight="900" fill="url(#kmsGrad)" text-anchor="middle" letter-spacing="6" filter="url(#glow)">KMS</text>
+
+  <!-- Studio Soundwave Equalizer Bars -->
+  <g transform="translate(146, 304)">
+    <rect x="0" y="20" width="7" height="24" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="14" y="10" width="7" height="34" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="28" y="4" width="7" height="40" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="42" y="14" width="7" height="30" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="56" y="0" width="7" height="44" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="70" y="8" width="7" height="36" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="84" y="18" width="7" height="26" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="98" y="6" width="7" height="38" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="112" y="0" width="7" height="44" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="126" y="12" width="7" height="32" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="140" y="4" width="7" height="40" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="154" y="16" width="7" height="28" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="168" y="2" width="7" height="42" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="182" y="10" width="7" height="34" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="196" y="18" width="7" height="26" rx="3.5" fill="url(#barGrad)"/>
+    <rect x="210" y="24" width="7" height="20" rx="3.5" fill="url(#barGrad)"/>
+  </g>
+
+  <!-- Creator & Brand Subtitle -->
+  <text x="256" y="388" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="21" font-weight="900" fill="#ffffff" letter-spacing="4.5" text-anchor="middle">KHATEEB MALIK</text>
+  <text x="256" y="415" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#00ff88" letter-spacing="6" text-anchor="middle">AI VOICE STUDIO</text>
+  <text x="256" y="438" font-family="'Noto Nastaliq Urdu', system-ui, sans-serif" font-size="15" font-weight="bold" fill="#a29bfe" text-anchor="middle">خطیب ملک اسٹوڈیو</text>
+</svg>

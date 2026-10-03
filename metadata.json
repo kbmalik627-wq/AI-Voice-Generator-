@@ -1,0 +1,6 @@
+{
+  "name": "Pakistan AI Voice Studio",
+  "description": "Unlimited copyright-free Urdu and Pakistani English AI voice generator with 6 voices including Male, Female, and Kids, studio audio playback, and WAV export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
