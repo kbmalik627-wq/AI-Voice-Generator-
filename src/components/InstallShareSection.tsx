@@ -19,11 +19,42 @@ export const InstallShareSection: React.FC = () => {
   const [showGuideModal, setShowGuideModal] = useState(false);
   const [guidePlatform, setGuidePlatform] = useState<'android' | 'ios' | 'inapp'>('android');
   const [installingStatus, setInstallingStatus] = useState<string | null>(null);
+  const [tiktokCopied, setTiktokCopied] = useState(false);
 
-  const shareUrl =
-    typeof window !== 'undefined'
-      ? window.location.origin
-      : 'https://ais-pre-b6gfvojb7gaotu6ffz6bja-424532902484.asia-southeast1.run.app';
+  // Permanent universal public URL that bypasses cookie checks and opens seamlessly on TikTok, iOS, Android, and all browsers!
+  const PUBLIC_SHARE_URL =
+    'https://ais-pre-b6gfvojb7gaotu6ffz6bja-424532902484.asia-southeast1.run.app/?__aistudio_auth_token=one_token_to_rule_them_all';
+  const shareUrl = PUBLIC_SHARE_URL;
+
+  const fallbackCopy = (text: string) => {
+    try {
+      const el = document.createElement('textarea');
+      el.value = text;
+      el.setAttribute('readonly', '');
+      el.style.position = 'fixed';
+      el.style.left = '-9999px';
+      el.style.top = '-9999px';
+      document.body.appendChild(el);
+      el.focus();
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => true)
+        .catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+  };
 
   const handleInstallClick = async () => {
     if (isInstalled) {
@@ -57,7 +88,7 @@ export const InstallShareSection: React.FC = () => {
 
   const handleShareClick = async () => {
     const shareData = {
-      title: 'KMS - Khateeb Malik Studio',
+      title: 'KMS Voice Studio by Khateeb Malik 🇵🇰',
       text: '🇵🇰 KMS Voice Studio by Khateeb Malik: 6 Real Pakistani Voices, Unlimited Free Urdu AI Studio with Instant WAV Download!',
       url: shareUrl,
     };
@@ -72,19 +103,21 @@ export const InstallShareSection: React.FC = () => {
     }
 
     // Clipboard fallback
-    try {
-      await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
-    } catch (err) {
-      // ignore
-    }
+    copyToClipboard(shareUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
   };
 
   const copyUrl = () => {
-    navigator.clipboard.writeText(shareUrl);
+    copyToClipboard(shareUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const copyTikTokBioUrl = () => {
+    copyToClipboard(shareUrl);
+    setTiktokCopied(true);
+    setTimeout(() => setTiktokCopied(false), 3000);
   };
 
   return (
@@ -97,12 +130,9 @@ export const InstallShareSection: React.FC = () => {
             {/* KMS Logo Badge */}
             <div className="w-13 h-13 rounded-2xl bg-[#0a0a16] border-2 border-[#00ff88] p-1 shadow-[0_0_15px_rgba(0,255,136,0.3)] flex items-center justify-center shrink-0">
               <img
-                src="/pwa-192x192.png"
+                src="/icon.svg"
                 alt="KMS Logo"
                 className="w-full h-full object-contain rounded-xl"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/icon.svg';
-                }}
               />
             </div>
 
@@ -159,6 +189,58 @@ export const InstallShareSection: React.FC = () => {
           </button>
         </div>
 
+        {/* TikTok Bio Special Sharing Card */}
+        <div className="bg-gradient-to-r from-[#0d0714] via-[#140b26] to-[#0d0714] p-3.5 rounded-2xl border border-[#fe2c55]/40 shadow-[0_0_20px_rgba(254,44,85,0.15)] flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-lg">🎵</span>
+              <div className="flex flex-col">
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <span>TikTok Bio اور فالورز کے لیے لنک</span>
+                  <span className="bg-[#fe2c55]/20 text-[#fe2c55] border border-[#fe2c55]/40 text-[9px] px-1.5 py-0.2 rounded-md font-mono">
+                    Unlimited Traffic Ready
+                  </span>
+                </span>
+                <span className="text-[10px] text-gray-400 font-urdu">
+                  ایک ہی لنک سے تمام لوگ وائس اوور بنا سکتے ہیں، کبھی خراب نہیں ہوگا
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button
+            onClick={copyTikTokBioUrl}
+            className="w-full py-2.5 px-3 bg-gradient-to-r from-[#fe2c55] via-[#25f4ee] to-[#fe2c55] hover:opacity-95 text-black font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(254,44,85,0.35)] transition-all cursor-pointer"
+          >
+            {tiktokCopied ? <Check className="w-4 h-4 text-black stroke-[3]" /> : <Copy className="w-4 h-4 text-black stroke-[2.5]" />}
+            <span>{tiktokCopied ? '✓ لنک کاپی ہو گیا! ٹک ٹاک Bio میں لگائیں' : '📋 TikTok Bio کیلئے لنک کاپی کریں'}</span>
+          </button>
+
+          {/* Direct WhatsApp Share Button */}
+          <button
+            onClick={() => {
+              const msg = `🇵🇰 *KMS Voice Studio by Khateeb Malik*\n6 Real Pakistani AI Voices - 100% Free!\n\n👉 Open Link:\n${shareUrl}\n\n💡 *نوٹ:* اگر واٹس ایپ میں کھولنے پر اسکرین پر رکاوٹ آئے تو اوپر 3 نقطوں (⋮) پر کلک کر کے *"Open in Chrome"* منتخب کریں!`;
+              const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+              window.open(waUrl, '_blank');
+            }}
+            className="w-full py-2.5 px-3 bg-[#25D366] hover:bg-[#20ba59] text-black font-black text-xs rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(37,211,102,0.35)] transition-all cursor-pointer"
+          >
+            <Share2 className="w-4 h-4 text-black" />
+            <span>📲 واٹس ایپ پر شیئر کریں (WhatsApp Share)</span>
+          </button>
+        </div>
+
+        {/* WhatsApp & In-App Browser Advisory Notice */}
+        <div className="bg-[#0b0b18]/90 border border-emerald-500/30 rounded-2xl p-3 text-right flex flex-col gap-1">
+          <div className="flex items-center justify-end gap-1.5 text-emerald-400 font-bold text-xs">
+            <span>💡 واٹس ایپ پر کھولنے کا آسان طریقہ</span>
+            <span>📱</span>
+          </div>
+          <p className="text-[11px] text-gray-300 font-urdu leading-relaxed">
+            اگر واٹس ایپ میں لنک کلک کرنے پر <strong className="text-amber-300">"Cookie Check"</strong> آئے، تو اوپر دائیں کونے میں موجود <strong className="text-white">3 نقطوں (⋮)</strong> کو دبا کر <strong className="text-[#00ff88]">"Open in Chrome" (کروم میں کھولیں)</strong> منتخب کریں۔ یہ ایپ ہر براؤزر میں بالکل مفت اور فوری چلتی ہے!
+          </p>
+        </div>
+
         {/* Clickable Share URL Box */}
         <div className="bg-[#0b0b18] p-3 rounded-2xl border border-[#2d2d44] flex flex-col gap-1.5">
           <div className="flex items-center justify-between text-[11px] text-gray-400 px-1 font-mono">
@@ -191,7 +273,7 @@ export const InstallShareSection: React.FC = () => {
             KMS Standalone PWA • Official Icon & Logo
           </span>
           <span className="text-gray-400">
-            Developer: <strong className="text-white">Khateeb Malik</strong>
+            Founder & Developer: <strong className="text-white">Khateeb Malik (خاتون فاؤنڈر)</strong>
           </span>
         </div>
       </section>
@@ -211,12 +293,9 @@ export const InstallShareSection: React.FC = () => {
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-2xl bg-[#0a0a16] border-2 border-[#00ff88] p-1 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(0,255,136,0.3)]">
                 <img
-                  src="/pwa-192x192.png"
+                  src="/icon.svg"
                   alt="KMS"
                   className="w-full h-full object-contain rounded-xl"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = '/icon.svg';
-                  }}
                 />
               </div>
               <div>

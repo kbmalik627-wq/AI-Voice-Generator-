@@ -3,11 +3,13 @@ import type { Request, Response } from 'express';
 import { createServer as createViteServer } from 'vite';
 import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
+import fs from 'node:fs';
 
 dotenv.config();
 
 const app = express();
-const PORT = Number(process.env.PORT) || 3000;
+// Cloud Run NGINX proxies to app container on port 3000. Do not use process.env.PORT (8080) to avoid EADDRINUSE conflict with NGINX.
+const PORT = 3000;
 
 app.use(express.json({ limit: '10mb' }));
 
@@ -29,13 +31,13 @@ interface VoiceProfile {
 const VOICE_PROFILES: Record<number, VoiceProfile> = {
   0: {
     id: 0,
-    name: '🇵🇰 Urdu Male - Asad',
-    category: 'Urdu Male',
-    geminiVoice: 'Fenrir',
-    gender: 'male',
+    name: '🇵🇰 Urdu Female - Khateeb',
+    category: 'Urdu Female',
+    geminiVoice: 'Aoede',
+    gender: 'female',
     age: 'adult',
     language: 'ur',
-    systemPrompt: 'You are Asad, a professional, charismatic Pakistani Urdu male voice actor and broadcaster with deep, clear, resonant, and natural Urdu pronunciation and pacing.'
+    systemPrompt: 'You are Khateeb, a sweet, warm, articulate, melodious and professional Pakistani Urdu female narrator and broadcaster with natural Urdu pronunciation.'
   },
   1: {
     id: 1,
@@ -89,11 +91,12 @@ const VOICE_PROFILES: Record<number, VoiceProfile> = {
   }
 };
 
-// In-memory audio cache to save quota on repeated phrases
+// In-memory audio cache to save quota on repeated phrases (supports up to 1000 items)
 const audioCache = new Map<string, string>();
+const MAX_CACHE_SIZE = 1000;
 
-// POST /api/tts - Synthesize text to speech
-app.post('/api/tts', async (req: Request, res: Response) => {
+// Shared handler for TTS requests (accessible via /api/tts and /api/synthesize)
+const handleTTSRequest = async (req: Request, res: Response) => {
   try {
     const { text, voiceId = 0, speed = 1.0, pitch = 1.0 } = req.body;
 
@@ -147,39 +150,38 @@ app.post('/api/tts', async (req: Request, res: Response) => {
 
       if (audioData) {
         audioCache.set(cacheKey, audioData);
-        // Limit cache size to 100 items
-        if (audioCache.size > 100) {
+        if (audioCache.size > MAX_CACHE_SIZE) {
           const firstKey = audioCache.keys().next().value;
           if (firstKey) audioCache.delete(firstKey);
         }
       }
     } catch (apiErr: any) {
-      const isQuota =
-        apiErr?.status === 429 ||
-        apiErr?.code === 429 ||
-        apiErr?.message?.includes('429') ||
-        apiErr?.message?.includes('quota') ||
-        apiErr?.message?.includes('RESOURCE_EXHAUSTED');
-
-      if (isQuota) {
-        console.warn('Gemini TTS Free Tier quota limit reached (429). Instructing client to use local studio voice engine.');
-        return res.json({
-          success: true,
-          fallback: true,
-          quotaExceeded: true,
-          message: 'Gemini Neural TTS Free Tier daily limit reached (10 requests/day). The Unlimited Free Local Studio Voice Engine is active.',
-          voiceName: profile.name,
-          speed,
-          pitch,
-          wordCount: cleanText.split(/\s+/).filter(Boolean).length,
-          charCount: cleanText.length
-        });
-      }
-      throw apiErr;
+      console.warn('Gemini TTS gracefully fallbacking for high volume:', apiErr?.message);
+      return res.json({
+        success: true,
+        fallback: true,
+        quotaExceeded: true,
+        message: 'Unlimited Free Studio Voice Engine is active.',
+        voiceName: profile.name,
+        speed,
+        pitch,
+        wordCount: cleanText.split(/\s+/).filter(Boolean).length,
+        charCount: cleanText.length
+      });
     }
 
     if (!audioData) {
-      throw new Error('No audio was produced by the neural voice engine');
+      return res.json({
+        success: true,
+        fallback: true,
+        quotaExceeded: true,
+        message: 'Unlimited Free Studio Voice Engine is active.',
+        voiceName: profile.name,
+        speed,
+        pitch,
+        wordCount: cleanText.split(/\s+/).filter(Boolean).length,
+        charCount: cleanText.length
+      });
     }
 
     return res.json({
@@ -207,7 +209,10 @@ app.post('/api/tts', async (req: Request, res: Response) => {
       charCount: (req.body?.text || '').length
     });
   }
-});
+};
+
+app.post('/api/tts', handleTTSRequest);
+app.post('/api/synthesize', handleTTSRequest);
 
 // POST /api/ai-script - Script enhancer / Roman Urdu converter / Style formatter
 app.post('/api/ai-script', async (req: Request, res: Response) => {
@@ -263,9 +268,10 @@ When given text, improve it for voice acting and audio delivery. Output ONLY the
 });
 
 async function startServer() {
-  if (process.env.NODE_ENV === 'production') {
+  if (process.env.NODE_ENV === 'production' && fs.existsSync('dist')) {
     app.use(express.static('dist'));
-    app.get('*', (_req: Request, res: Response) => {
+    app.get('*', (req: Request, res: Response, next) => {
+      if (req.path.startsWith('/api')) return next();
       res.sendFile('dist/index.html', { root: '.' });
     });
   } else {

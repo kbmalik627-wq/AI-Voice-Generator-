@@ -21,10 +21,10 @@ export default defineConfig(() => {
         ],
         manifest: {
           id: '/',
-          name: 'AMS - Khateeb Malik Studio',
-          short_name: 'AMS Studio',
+          name: 'KMS - Khateeb Malik Studio',
+          short_name: 'KMS Studio',
           description:
-            'Official AMS Voice Studio by Khateeb Malik. Unlimited Free Urdu & Pakistani English AI Voice Studio with 6 Real Voices and WAV download.',
+            'Official KMS Voice Studio by Khateeb Malik. Unlimited Free Urdu & Pakistani English AI Voice Studio with 6 Real Voices and WAV download.',
           theme_color: '#0f0f1e',
           background_color: '#0a0a16',
           display: 'standalone',
